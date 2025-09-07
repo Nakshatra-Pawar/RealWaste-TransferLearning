@@ -14,17 +14,8 @@ A compact Keras/TensorFlow project that classifies waste images into **nine** ca
 - [Project Structure](#project-structure)  
 - [Getting Started](#getting-started)  
   - [Requirements](#requirements)  
-  - [Install](#install)  
-- [Data Layout](#data-layout)  
-- [Usage](#usage)  
-  - [Run the Notebook](#run-the-notebook)  
-  - [Key Config](#key-config)  
-  - [Training](#training)  
-  - [Evaluation & Artifacts](#evaluation--artifacts)  
-- [Tips & Troubleshooting](#tips--troubleshooting)  
-- [.gitignore (recommended)](#gitignore-recommended)  
-- [`requirements.txt` (suggested)](#requirementstxt-suggested)  
-- [Contributing](#contributing)  
+  - [Install](#install)    
+- [Training](#training)    
 - [License](#license)
 
 ---
@@ -43,18 +34,16 @@ A compact Keras/TensorFlow project that classifies waste images into **nine** ca
 
 ```
 RealWaste-TransferLearning/
-├─ Data/                     # (not tracked in git; keep datasets here)
-│  ├─ RealWaste/             # optional master copy of the dataset
-│  ├─ RealWaste_train/       # train split: class folders with images
-│  └─ RealWaste_test/        # test  split: class folders with images
+├─ Data/                     
+│  ├─ RealWaste/             
+│  ├─ RealWaste_train/       
+│  └─ RealWaste_test/        
 ├─ Notebook/
 │  └─ Pawar_Nakshatra_Final_Project.ipynb
 ├─ README.md
 ├─ requirements.txt
 └─ .gitignore
 ```
-
-> ⚠️ The dataset is large and **should not be committed**. Keep it under `Data/`.
 
 ---
 
@@ -75,49 +64,6 @@ pip install -r requirements.txt
 
 ---
 
-## Data Layout
-
-Place your images in class-named folders for both splits:
-
-```
-Data/RealWaste_train/<class_name>/*.jpg|png
-Data/RealWaste_test/<class_name>/*.jpg|png
-```
-
-If you only have a single folder `Data/RealWaste/`, you can create an 80/20 split inside the notebook (a helper cell is provided there).
-
----
-
-## Usage
-
-### Run the Notebook
-
-Open:
-
-```
-Notebook/Pawar_Nakshatra_Final_Project.ipynb
-```
-
-In the first configuration cell, set:
-
-```python
-DATA_DIR = "../Data"             # adjust if needed
-TRAIN_DIR = f"{DATA_DIR}/RealWaste_train"
-TEST_DIR  = f"{DATA_DIR}/RealWaste_test"
-```
-
-### Key Config
-
-Typical variables you can tweak in the notebook:
-
-```python
-BACKBONE = "ResNet50"            # "VGG16", "ResNet50", "ResNet101", "EfficientNetB0"
-IMG_SIZE = (224, 224)            # (height, width)
-BATCH    = 5
-EPOCHS   = 50                    # EarlyStopping will cap this if val loss plateaus
-SEED     = 42
-```
-
 ### Training
 
 The notebook does the following:
@@ -130,77 +76,6 @@ The notebook does the following:
 - **Callbacks:** EarlyStopping, ModelCheckpoint
 
 Just execute the training cell—loss/accuracy curves and best weights will be saved into `./artifacts/` (path can be changed).
-
-### Evaluation & Artifacts
-
-The notebook computes:
-
-- Micro/Macro **Precision, Recall, F1**, and **AUC**  
-- **Confusion matrix** and sample predictions  
-- Curves: training/validation **loss** and **accuracy**
-
-You can export figures to `./artifacts/` for inclusion in reports or the repo (avoid committing raw datasets).
-
----
-
-## Tips & Troubleshooting
-
-- Start with **EfficientNetB0** for faster runs; use **ResNet50** for a stronger baseline.  
-- If you hit OOM (out-of-memory), **lower** `BATCH` or reduce `IMG_SIZE`.  
-- Set a **fixed `SEED`** and enable deterministic ops (if needed) for strict reproducibility.  
-- Keep the **Data/** folder **out of git**. Consider symlinks if you store data elsewhere.  
-- GPU available? Verify with:
-
-  ```python
-  import tensorflow as tf
-  tf.config.list_physical_devices('GPU')
-  ```
-
----
-
-## .gitignore (recommended)
-
-```gitignore
-# data & artifacts
-Data/
-artifacts/
-*.h5
-*.ckpt*
-*.tfrecord
-*.npz
-*.npy
-
-# notebooks & caches
-.ipynb_checkpoints/
-__pycache__/
-*.DS_Store
-
-# OS/editor files
-Thumbs.db
-.vscode/
-```
-
----
-
-## `requirements.txt` (suggested)
-
-```
-tensorflow>=2.13
-keras>=2.13
-opencv-python
-numpy
-pandas
-matplotlib
-scikit-learn
-tqdm
-```
-
----
-
-## Contributing
-
-Small improvements are welcome—typo fixes, better docs, or extra backbone configs.  
-Open an issue or a PR describing the change.
 
 ---
 

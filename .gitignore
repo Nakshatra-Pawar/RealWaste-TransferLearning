@@ -1,0 +1,19 @@
+```gitignore
+# data & artifacts
+Data/
+artifacts/
+*.h5
+*.ckpt*
+*.tfrecord
+*.npz
+*.npy
+
+# notebooks & caches
+.ipynb_checkpoints/
+__pycache__/
+*.DS_Store
+
+# OS/editor files
+Thumbs.db
+.vscode/
+```
