@@ -1,10 +1,49 @@
-# RealWaste-TransferLearning
+# RealWaste — Transfer Learning for 9-Class Waste Classification
 
-Lightweight Keras/TensorFlow project that classifies waste images into nine categories using transfer learning (VGG16, ResNet, EfficientNet). Trains a small classification head on frozen backbones with standard image augmentation and reports Precision/Recall/F1/AUC.
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange)
 
-Repo Structure
+A compact Keras/TensorFlow project that classifies waste images into **nine** categories using transfer learning (VGG16, ResNet, EfficientNet). The workflow is notebook-driven and includes preprocessing, augmentation, model training, and evaluation with Precision/Recall/F1/AUC.
+
+---
+
+## Table of Contents
+
+- [Features](#features)  
+- [Project Structure](#project-structure)  
+- [Getting Started](#getting-started)  
+  - [Requirements](#requirements)  
+  - [Install](#install)  
+- [Data Layout](#data-layout)  
+- [Usage](#usage)  
+  - [Run the Notebook](#run-the-notebook)  
+  - [Key Config](#key-config)  
+  - [Training](#training)  
+  - [Evaluation & Artifacts](#evaluation--artifacts)  
+- [Tips & Troubleshooting](#tips--troubleshooting)  
+- [.gitignore (recommended)](#gitignore-recommended)  
+- [`requirements.txt` (suggested)](#requirementstxt-suggested)  
+- [Contributing](#contributing)  
+- [License](#license)
+
+---
+
+## Features
+
+- Transfer learning with popular image backbones: **VGG16**, **ResNet50/101**, **EfficientNetB0**  
+- Reproducible, notebook-first pipeline (easy to inspect and modify)  
+- Standard image **augmentation** (flip/rotate/zoom/translate/contrast)  
+- Clear **metrics**: micro/macro Precision, Recall, F1, AUC, confusion matrix  
+- Lightweight and GPU-friendly; configurable batch size and image size
+
+---
+
+## Project Structure
+
+```
 RealWaste-TransferLearning/
-├─ Data/                     # (not tracked in git; see .gitignore)
+├─ Data/                     # (not tracked in git; keep datasets here)
 │  ├─ RealWaste/             # optional master copy of the dataset
 │  ├─ RealWaste_train/       # train split: class folders with images
 │  └─ RealWaste_test/        # test  split: class folders with images
@@ -13,82 +52,115 @@ RealWaste-TransferLearning/
 ├─ README.md
 ├─ requirements.txt
 └─ .gitignore
+```
 
+> ⚠️ The dataset is large and **should not be committed**. Keep it under `Data/`.
 
-The dataset is large and should not be committed. Keep it under Data/.
+---
 
-Setup
+## Getting Started
 
-Create an environment (Python 3.10+ recommended) and install dependencies:
+### Requirements
+- **Python 3.10+**
+- TensorFlow 2.x / Keras
+- See the suggested `requirements.txt` below.
 
+### Install
+
+Create and activate a virtual environment (optional but recommended), then:
+
+```bash
 pip install -r requirements.txt
+```
 
+---
 
-requirements.txt (suggested)
+## Data Layout
 
-tensorflow>=2.13
-keras>=2.13
-opencv-python
-numpy
-pandas
-matplotlib
-scikit-learn
-tqdm
+Place your images in class-named folders for both splits:
 
+```
+Data/RealWaste_train/<class_name>/*.jpg|png
+Data/RealWaste_test/<class_name>/*.jpg|png
+```
 
-Place your dataset as:
+If you only have a single folder `Data/RealWaste/`, you can create an 80/20 split inside the notebook (a helper cell is provided there).
 
-Data/RealWaste_train/<class>/*.jpg|png
-Data/RealWaste_test/<class>/*.jpg|png
+---
 
+## Usage
 
-(If you only have Data/RealWaste/, the notebook can create an 80/20 split.)
+### Run the Notebook
 
-Open the notebook:
+Open:
 
+```
 Notebook/Pawar_Nakshatra_Final_Project.ipynb
+```
 
+In the first configuration cell, set:
 
-In the first config cell, set:
-
-DATA_DIR = "../Data"      # adjust if needed
+```python
+DATA_DIR = "../Data"             # adjust if needed
 TRAIN_DIR = f"{DATA_DIR}/RealWaste_train"
 TEST_DIR  = f"{DATA_DIR}/RealWaste_test"
+```
 
-What the Notebook Does
+### Key Config
 
-Preprocessing: resize/center-pad; label encoding
+Typical variables you can tweak in the notebook:
 
-Augmentation: random flip/rotate/zoom/translate/contrast
-
-Backbones: VGG16, ResNet50/101, EfficientNetB0 (frozen feature extractor)
-
-Head: BatchNorm → Dropout(0.2) → Dense(ReLU) → Dense(softmax) with L2
-
-Training: Adam, categorical cross-entropy, early stopping & model checkpoint
-
-Evaluation: micro/macro Precision, Recall, F1, AUC; confusion matrix and curves
-
-Quick Start (example)
-
-In the notebook, pick a backbone and train:
-
-BACKBONE = "ResNet50"    # options: "VGG16", "ResNet50", "ResNet101", "EfficientNetB0"
-IMG_SIZE = (224, 224)
+```python
+BACKBONE = "ResNet50"            # "VGG16", "ResNet50", "ResNet101", "EfficientNetB0"
+IMG_SIZE = (224, 224)            # (height, width)
 BATCH    = 5
-EPOCHS   = 50            # early stopping will cap this
+EPOCHS   = 50                    # EarlyStopping will cap this if val loss plateaus
+SEED     = 42
+```
 
-# run the provided training cell; metrics & plots will be saved under ./artifacts/
+### Training
 
-Tips
+The notebook does the following:
 
-Start with EfficientNetB0 for speed; try ResNet50 for stronger baseline.
+- **Preprocessing:** resize/center-pad; label encoding  
+- **Augmentation:** random flip/rotate/zoom/translate/contrast  
+- **Feature extractor:** chosen backbone **frozen** initially  
+- **Classification head:** BatchNorm → Dropout(0.2) → Dense(ReLU) → Dense(softmax) + L2  
+- **Optimization:** Adam + categorical cross-entropy  
+- **Callbacks:** EarlyStopping, ModelCheckpoint
 
-If GPU memory is tight, reduce batch size or image size.
+Just execute the training cell—loss/accuracy curves and best weights will be saved into `./artifacts/` (path can be changed).
 
-Add your final metric table and sample predictions as screenshots to the repo (but keep raw images out of git).
+### Evaluation & Artifacts
 
-.gitignore (recommended)
+The notebook computes:
+
+- Micro/Macro **Precision, Recall, F1**, and **AUC**  
+- **Confusion matrix** and sample predictions  
+- Curves: training/validation **loss** and **accuracy**
+
+You can export figures to `./artifacts/` for inclusion in reports or the repo (avoid committing raw datasets).
+
+---
+
+## Tips & Troubleshooting
+
+- Start with **EfficientNetB0** for faster runs; use **ResNet50** for a stronger baseline.  
+- If you hit OOM (out-of-memory), **lower** `BATCH` or reduce `IMG_SIZE`.  
+- Set a **fixed `SEED`** and enable deterministic ops (if needed) for strict reproducibility.  
+- Keep the **Data/** folder **out of git**. Consider symlinks if you store data elsewhere.  
+- GPU available? Verify with:
+
+  ```python
+  import tensorflow as tf
+  tf.config.list_physical_devices('GPU')
+  ```
+
+---
+
+## .gitignore (recommended)
+
+```gitignore
 # data & artifacts
 Data/
 artifacts/
@@ -103,6 +175,35 @@ artifacts/
 __pycache__/
 *.DS_Store
 
-License
+# OS/editor files
+Thumbs.db
+.vscode/
+```
 
-This project is licensed under the MIT License. See LICENSE for details.
+---
+
+## `requirements.txt` (suggested)
+
+```
+tensorflow>=2.13
+keras>=2.13
+opencv-python
+numpy
+pandas
+matplotlib
+scikit-learn
+tqdm
+```
+
+---
+
+## Contributing
+
+Small improvements are welcome—typo fixes, better docs, or extra backbone configs.  
+Open an issue or a PR describing the change.
+
+---
+
+## License
+
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
